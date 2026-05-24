@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+:root {
+  --bg-deep: #050508;
+  --bg-surface: #0c0f12;
+  --bg-elevated: #12161c;
+  --neon-primary: #00ff9c;
+  --neon-bright: #39ff14;
+  --neon-dim: rgba(0, 255, 156, 0.2);
+  --text-primary: #e8fff4;
+  --text-muted: #7a9a8a;
+  --danger: #ff4d6d;
+  --warning: #ffd166;
+  --background: var(--bg-deep);
+  --foreground: var(--text-primary);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-bg-deep: var(--bg-deep);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-neon-primary: var(--neon-primary);
+  --color-neon-bright: var(--neon-bright);
+  --color-text-muted: var(--text-muted);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --font-sans: var(--font-dm-sans);
+  --font-display: var(--font-orbitron);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+}
+
+/* Ambient corner glow */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 0% 0%, rgba(0, 255, 156, 0.06), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(57, 255, 20, 0.04), transparent 45%);
+}
+
+.glass-panel {
+  background: rgba(12, 15, 18, 0.72);
+  border: 1px solid rgba(0, 255, 156, 0.18);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 0 40px rgba(0, 255, 156, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.neon-text {
+  color: var(--neon-primary);
+  text-shadow: 0 0 24px rgba(0, 255, 156, 0.45);
+}
+
+.neon-border-glow:hover {
+  box-shadow: 0 0 24px rgba(0, 255, 156, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
