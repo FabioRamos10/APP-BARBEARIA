@@ -17,6 +17,40 @@ interface DashboardShellProps {
   children: ReactNode;
 }
 
+function UserActions({
+  name,
+  role,
+  logout,
+  align = "end",
+  className = "",
+}: {
+  name: string;
+  role: NonNullable<ReturnType<typeof useAuth>["role"]>;
+  logout: () => void;
+  align?: "start" | "end";
+  className?: string;
+}) {
+  return (
+    <div
+      className={[
+        "flex flex-wrap items-center gap-2 sm:gap-3",
+        align === "start" ? "justify-start" : "justify-end",
+        className,
+      ].join(" ")}
+    >
+      <UserIdentity
+        name={name}
+        role={role}
+        className="min-w-0 max-w-[min(100%,14rem)]"
+      />
+      <Button variant="outline" size="sm" onClick={logout}>
+        Sair
+      </Button>
+      <AlertasBell />
+    </div>
+  );
+}
+
 export function DashboardShell({
   title,
   subtitle,
@@ -30,40 +64,68 @@ export function DashboardShell({
   return (
     <AppShell>
       <header className="relative z-30 mx-auto mb-6 w-full max-w-4xl border-b border-neon-primary/15 pb-5 sm:mb-8">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-          <div className="flex min-w-0 flex-1 items-end justify-between gap-3">
-            <div className="min-w-0 flex-1 pr-1">
-              <p className="font-display text-[10px] uppercase tracking-[0.25em] text-neon-primary/70 sm:text-xs sm:tracking-[0.3em]">
-                {BRAND_NAME}
-              </p>
-              <h1 className="font-display mt-1 text-lg font-semibold tracking-wide text-foreground sm:text-xl">
-                {title}
-              </h1>
-              {subtitle ? (
-                <p className="mt-1 text-sm text-text-muted">{subtitle}</p>
-              ) : (
-                <p className="mt-1 text-sm text-transparent" aria-hidden>
-                  &nbsp;
-                </p>
-              )}
-            </div>
-            <div className="shrink-0 -translate-y-3">
+        {/* Mobile */}
+        <div className="flex flex-col gap-3 sm:hidden">
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-display min-w-0 flex-1 text-[10px] uppercase tracking-[0.25em] text-neon-primary/70">
+              {BRAND_NAME}
+            </p>
+            <div className="shrink-0 -translate-y-0.5">
               <ChatbotWidget />
             </div>
           </div>
+          <div className="min-w-0">
+            <h1 className="font-display text-lg font-semibold tracking-wide text-foreground">
+              {title}
+            </h1>
+            {subtitle ? (
+              <p className="mt-1 text-sm text-text-muted">{subtitle}</p>
+            ) : (
+              <p className="mt-1 text-sm text-transparent" aria-hidden>
+                &nbsp;
+              </p>
+            )}
+          </div>
+          {role && (
+            <UserActions
+              name={name}
+              role={role}
+              logout={logout}
+              align="start"
+              className="mt-3"
+            />
+          )}
+        </div>
 
-          <div className="flex shrink-0 items-center justify-end gap-2 sm:gap-3">
+        {/* Desktop */}
+        <div className="hidden sm:flex sm:items-end sm:justify-between sm:gap-6">
+          <div className="min-w-0 flex-1">
+            <p className="font-display text-xs uppercase tracking-[0.3em] text-neon-primary/70">
+              {BRAND_NAME}
+            </p>
+            <h1 className="font-display mt-1 text-xl font-semibold tracking-wide text-foreground">
+              {title}
+            </h1>
+            {subtitle ? (
+              <p className="mt-1 text-sm text-text-muted">{subtitle}</p>
+            ) : (
+              <p className="mt-1 text-sm text-transparent" aria-hidden>
+                &nbsp;
+              </p>
+            )}
+          </div>
+          <div className="flex shrink-0 flex-col items-end gap-3">
+            <div className="-translate-y-1">
+              <ChatbotWidget />
+            </div>
             {role && (
-              <UserIdentity
+              <UserActions
                 name={name}
                 role={role}
-                className="min-w-0 max-w-[min(100%,14rem)]"
+                logout={logout}
+                align="end"
               />
             )}
-            <Button variant="outline" size="sm" onClick={logout}>
-              Sair
-            </Button>
-            <AlertasBell />
           </div>
         </div>
       </header>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { useNavigationProgress } from "@/contexts/NavigationProgressContext";
 import type { NavItem } from "@/lib/navigation/dashboard-nav";
 
 interface DashboardNavProps {
@@ -21,6 +22,7 @@ function isActive(pathname: string, href: string): boolean {
 
 export function DashboardNav({ items }: DashboardNavProps) {
   const pathname = usePathname();
+  const { startNavigation } = useNavigationProgress();
   const activeRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
@@ -46,6 +48,11 @@ export function DashboardNav({ items }: DashboardNavProps) {
               key={item.href}
               ref={active ? activeRef : undefined}
               href={item.href}
+              onClick={() => {
+                if (!active) {
+                  startNavigation();
+                }
+              }}
               className={[
                 "shrink-0 rounded-xl border px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-all duration-200",
                 active

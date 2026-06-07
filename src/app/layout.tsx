@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, Orbitron } from "next/font/google";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { NavigationProgressProvider } from "@/contexts/NavigationProgressContext";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -33,7 +34,9 @@ export default function RootLayout({
       className={`${dmSans.variable} ${orbitron.variable} h-full`}
     >
       <body className="min-h-full antialiased">
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <NavigationProgressProvider>{children}</NavigationProgressProvider>
+        </AuthProvider>
       </body>
     </html>
   );

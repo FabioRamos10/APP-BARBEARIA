@@ -40,6 +40,7 @@ interface AuthContextValue {
   login: (email: string, senha: string) => Promise<void>;
   logout: () => void;
   refreshSession: () => Promise<void>;
+  notifyRouteReady: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -129,18 +130,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback(
     async (loginEmail: string, senha: string) => {
-      const { token } = await loginApi({ email: loginEmail, senha });
-      setToken(token);
-      setStoredEmail(loginEmail);
+      setIsLoading(true);
+      try {
+        const { token } = await loginApi({ email: loginEmail, senha });
+        setToken(token);
+        setStoredEmail(loginEmail);
 
-      const resolvedRole = await resolveRole();
-      setStoredRole(resolvedRole);
-      setEmail(loginEmail);
-      setRole(resolvedRole);
-      const name = await resolveNameForRole(resolvedRole, loginEmail);
-      setDisplayName(name);
+        const resolvedRole = await resolveRole();
+        setStoredRole(resolvedRole);
+        setEmail(loginEmail);
+        setRole(resolvedRole);
+        const name = await resolveNameForRole(resolvedRole, loginEmail);
+        setDisplayName(name);
 
-      router.replace(getDashboardPath(resolvedRole));
+        router.replace(getDashboardPath(resolvedRole));
+      } catch (error) {
+        setIsLoading(false);
+        throw error;
+      }
     },
     [router],
   );
@@ -159,6 +166,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false);
   }, [applySession]);
 
+  const notifyRouteReady = useCallback(() => {
+    setIsLoading(false);
+  }, []);
+
   const value = useMemo(
     () => ({
       email,
@@ -169,8 +180,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login,
       logout,
       refreshSession,
+      notifyRouteReady,
     }),
-    [email, displayName, role, isLoading, login, logout, refreshSession],
+    [email, displayName, role, isLoading, login, logout, refreshSession, notifyRouteReady],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
