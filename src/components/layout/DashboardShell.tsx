@@ -46,7 +46,9 @@ export function DashboardShell({
               </p>
             )}
           </div>
-          <ChatbotWidget />
+          <div className="shrink-0 -translate-y-3 sm:-translate-y-4">
+            <ChatbotWidget />
+          </div>
         </div>
         <div className="flex w-full min-w-0 items-center gap-2 sm:w-auto sm:shrink-0 sm:gap-3">
           {role && (
