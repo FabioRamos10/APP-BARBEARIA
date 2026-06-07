@@ -30,16 +30,23 @@ export function DashboardShell({
   return (
     <AppShell>
       <header className="relative z-30 mx-auto mb-6 flex w-full max-w-4xl flex-col gap-4 border-b border-neon-primary/15 pb-5 sm:mb-8 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0 flex-1">
-          <p className="font-display text-[10px] uppercase tracking-[0.25em] text-neon-primary/70 sm:text-xs sm:tracking-[0.3em]">
-            {BRAND_NAME}
-          </p>
-          <h1 className="font-display mt-1 text-lg font-semibold tracking-wide text-foreground sm:text-xl">
-            {title}
-          </h1>
-          {subtitle && (
-            <p className="mt-1 text-sm text-text-muted">{subtitle}</p>
-          )}
+        <div className="flex min-w-0 flex-1 items-end justify-between gap-3">
+          <div className="min-w-0 flex-1 pr-1">
+            <p className="font-display text-[10px] uppercase tracking-[0.25em] text-neon-primary/70 sm:text-xs sm:tracking-[0.3em]">
+              {BRAND_NAME}
+            </p>
+            <h1 className="font-display mt-1 text-lg font-semibold tracking-wide text-foreground sm:text-xl">
+              {title}
+            </h1>
+            {subtitle ? (
+              <p className="mt-1 text-sm text-text-muted">{subtitle}</p>
+            ) : (
+              <p className="mt-1 text-sm text-transparent" aria-hidden>
+                &nbsp;
+              </p>
+            )}
+          </div>
+          <ChatbotWidget />
         </div>
         <div className="flex w-full min-w-0 items-center gap-2 sm:w-auto sm:shrink-0 sm:gap-3">
           {role && (
@@ -54,7 +61,6 @@ export function DashboardShell({
               Sair
             </Button>
             <AlertasBell />
-            <ChatbotWidget />
           </div>
         </div>
       </header>

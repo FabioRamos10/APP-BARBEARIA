@@ -329,13 +329,15 @@ export function ChatbotWidget() {
         aria-haspopup="dialog"
         aria-label={open ? "Fechar assistente CB" : "Abrir assistente CB"}
         className={[
-          "relative flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border font-display text-[10px] font-bold tracking-wider transition",
-          open
-            ? "border-neon-primary bg-neon-primary/15 text-neon-primary shadow-[0_0_16px_rgba(57,255,20,0.25)]"
-            : "border-neon-primary/25 text-neon-primary hover:border-neon-primary/50 hover:bg-neon-primary/10",
+          "group relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-neon-primary/50 bg-black/85 font-display text-xs font-bold tracking-wider text-neon-primary shadow-[0_0_24px_rgba(57,255,20,0.35)] backdrop-blur-md transition-all hover:scale-105 hover:border-neon-primary hover:shadow-[0_0_36px_rgba(57,255,20,0.55)] focus:outline-none focus-visible:ring-2 focus-visible:ring-neon-primary sm:h-14 sm:w-14 sm:text-sm",
+          open ? "border-neon-primary shadow-[0_0_36px_rgba(57,255,20,0.55)]" : "",
         ].join(" ")}
       >
-        CB
+        <span
+          className="absolute inset-0 rounded-full border border-neon-primary/30 animate-ping opacity-20 group-hover:opacity-40"
+          aria-hidden
+        />
+        <span className="relative">CB</span>
       </button>
       {panel}
     </>
