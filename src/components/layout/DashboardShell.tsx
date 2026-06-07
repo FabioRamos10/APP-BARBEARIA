@@ -29,36 +29,37 @@ export function DashboardShell({
 
   return (
     <AppShell>
-      <header className="relative z-30 mx-auto mb-6 flex w-full max-w-4xl flex-col gap-4 border-b border-neon-primary/15 pb-5 sm:mb-8">
-        <div className="flex min-w-0 items-end justify-between gap-3">
-          <div className="min-w-0 flex-1 pr-1">
-            <p className="font-display text-[10px] uppercase tracking-[0.25em] text-neon-primary/70 sm:text-xs sm:tracking-[0.3em]">
-              {BRAND_NAME}
-            </p>
-            <h1 className="font-display mt-1 text-lg font-semibold tracking-wide text-foreground sm:text-xl">
-              {title}
-            </h1>
-            {subtitle ? (
-              <p className="mt-1 text-sm text-text-muted">{subtitle}</p>
-            ) : (
-              <p className="mt-1 text-sm text-transparent" aria-hidden>
-                &nbsp;
+      <header className="relative z-30 mx-auto mb-6 w-full max-w-4xl border-b border-neon-primary/15 pb-5 sm:mb-8">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+          <div className="flex min-w-0 flex-1 items-end justify-between gap-3">
+            <div className="min-w-0 flex-1 pr-1">
+              <p className="font-display text-[10px] uppercase tracking-[0.25em] text-neon-primary/70 sm:text-xs sm:tracking-[0.3em]">
+                {BRAND_NAME}
               </p>
+              <h1 className="font-display mt-1 text-lg font-semibold tracking-wide text-foreground sm:text-xl">
+                {title}
+              </h1>
+              {subtitle ? (
+                <p className="mt-1 text-sm text-text-muted">{subtitle}</p>
+              ) : (
+                <p className="mt-1 text-sm text-transparent" aria-hidden>
+                  &nbsp;
+                </p>
+              )}
+            </div>
+            <div className="shrink-0 -translate-y-3">
+              <ChatbotWidget />
+            </div>
+          </div>
+
+          <div className="flex shrink-0 items-center justify-end gap-2 sm:gap-3">
+            {role && (
+              <UserIdentity
+                name={name}
+                role={role}
+                className="min-w-0 max-w-[min(100%,14rem)]"
+              />
             )}
-          </div>
-          <div className="shrink-0 -translate-y-3">
-            <ChatbotWidget />
-          </div>
-        </div>
-        <div className="flex w-full min-w-0 items-center gap-2 sm:gap-3">
-          {role && (
-            <UserIdentity
-              name={name}
-              role={role}
-              className="min-w-0 max-w-[min(100%,16rem)] flex-1"
-            />
-          )}
-          <div className="flex shrink-0 items-center gap-2">
             <Button variant="outline" size="sm" onClick={logout}>
               Sair
             </Button>
