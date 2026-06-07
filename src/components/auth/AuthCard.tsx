@@ -21,12 +21,13 @@ export function AuthCard({ title, subtitle, children, footer }: AuthCardProps) {
     <AppShell centered>
       <div className="flex w-full max-w-md flex-col items-center">
         <BrandReveal
+          variant="hero"
           className="mb-8 text-2xl sm:text-3xl"
           onComplete={() => setCardReady(true)}
         />
         <div
           className={[
-            "intro-content-reveal w-full",
+            "intro-content-reveal intro-content-reveal-hero w-full",
             cardReady ? "intro-content-reveal-visible" : "",
           ].join(" ")}
         >
