@@ -21,5 +21,9 @@ export function labelStatusAtraso(
 }
 
 export function mensagemConfirmacaoAtraso(minutos: number): string {
-  return `Atraso confirmado. Horários ajustados em +${minutos} min.`;
+  return `Atraso confirmado. Horários ajustados em +${minutos} min na fila.`;
+}
+
+export function mensagemRecusaAtraso(): string {
+  return "Atraso recusado. O cliente foi notificado por e-mail.";
 }

@@ -9,6 +9,7 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label: string;
   options: SelectOption[];
   error?: string;
+  /** Omitir ou passar string vazia para não exibir opção em branco no topo */
   placeholder?: string;
 }
 
@@ -35,6 +36,7 @@ export function Select({
         id={selectId}
         className={[
           "w-full rounded-lg border bg-bg-deep/80 px-4 py-2.5 text-sm text-foreground",
+          "color-scheme-dark",
           "focus:border-neon-primary/60 focus:outline-none focus:ring-2 focus:ring-neon-primary/20",
           error ? "border-danger/60" : "border-neon-primary/20",
           className,
@@ -43,9 +45,17 @@ export function Select({
           .join(" ")}
         {...props}
       >
-        <option value="">{placeholder}</option>
+        {placeholder ? (
+          <option value="" disabled hidden>
+            {placeholder}
+          </option>
+        ) : null}
         {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
+          <option
+            key={opt.value}
+            value={opt.value}
+            className="bg-bg-deep text-foreground"
+          >
             {opt.label}
           </option>
         ))}

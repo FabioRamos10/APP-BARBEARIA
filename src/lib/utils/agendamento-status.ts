@@ -51,3 +51,94 @@ export const STAFF_STATUS_OPTIONS: StatusAgendamento[] = [
   "CANCELADO",
   "FALTOU",
 ];
+
+/** Abas da agenda — agrupadas para mobile */
+export type AgendaAba = "PROXIMOS" | "CONCLUIDOS" | "CANCELADOS" | "FALTAS";
+
+export const AGENDA_ABAS: {
+  value: AgendaAba;
+  label: string;
+  descricao: string;
+}[] = [
+  {
+    value: "PROXIMOS",
+    label: "Próximos",
+    descricao: "Agendado, confirmado e em andamento",
+  },
+  {
+    value: "CONCLUIDOS",
+    label: "Concluídos",
+    descricao: "Atendimentos finalizados",
+  },
+  {
+    value: "CANCELADOS",
+    label: "Cancelados",
+    descricao: "Agendamentos cancelados",
+  },
+  {
+    value: "FALTAS",
+    label: "Faltas",
+    descricao: "Cliente não compareceu",
+  },
+];
+
+const PROXIMOS: StatusAgendamento[] = [
+  "AGENDADO",
+  "CONFIRMADO",
+  "EM_ANDAMENTO",
+];
+
+const ABAS_STATUS: Record<AgendaAba, StatusAgendamento[]> = {
+  PROXIMOS,
+  CONCLUIDOS: ["CONCLUIDO"],
+  CANCELADOS: ["CANCELADO"],
+  FALTAS: ["FALTOU"],
+};
+
+export function matchesAgendaAba(
+  status: StatusAgendamento,
+  aba: AgendaAba,
+): boolean {
+  return ABAS_STATUS[aba].includes(status);
+}
+
+export function filterAgendamentosByAba<T extends { status: StatusAgendamento }>(
+  items: T[],
+  aba: AgendaAba,
+): T[] {
+  return items.filter((ag) => matchesAgendaAba(ag.status, aba));
+}
+
+export function countAgendamentosByAba<T extends { status: StatusAgendamento }>(
+  items: T[],
+): Record<AgendaAba, number> {
+  const counts = {} as Record<AgendaAba, number>;
+  for (const opt of AGENDA_ABAS) {
+    counts[opt.value] = filterAgendamentosByAba(items, opt.value).length;
+  }
+  return counts;
+}
+
+export function sortAgendamentosForAgenda<T extends { inicio: string }>(
+  items: T[],
+  aba: AgendaAba,
+): T[] {
+  const copy = [...items];
+  const useDesc = aba !== "PROXIMOS";
+  copy.sort((a, b) => {
+    const ta = new Date(a.inicio).getTime();
+    const tb = new Date(b.inicio).getTime();
+    return useDesc ? tb - ta : ta - tb;
+  });
+  return copy;
+}
+
+export function servicosLabel(ag: {
+  servico: { nome: string };
+  servicos?: { nome: string }[];
+}): string {
+  if (ag.servicos?.length) {
+    return ag.servicos.map((s) => s.nome).join(", ");
+  }
+  return ag.servico.nome;
+}

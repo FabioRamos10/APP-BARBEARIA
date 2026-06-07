@@ -88,6 +88,13 @@ export function confirmarAtraso(id: string) {
   );
 }
 
+export function recusarAtraso(id: string) {
+  return apiFetch<AgendamentoResponseDTO>(
+    `/agendamentos/${id}/atraso/recusar`,
+    { method: "POST" },
+  );
+}
+
 export function listAtrasoMensagens(agendamentoId: string) {
   return apiFetch<AtrasoMensagemResponseDTO[]>(
     `/agendamentos/${agendamentoId}/atraso/mensagens`,

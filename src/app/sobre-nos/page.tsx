@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
+import { HomeLink } from "@/components/ui/HomeLink";
 import { SobreNosFeed } from "@/components/sobre-nos/SobreNosFeed";
 import { BRAND_NAME } from "@/lib/brand";
 
@@ -19,11 +19,9 @@ export default function SobreNosPage() {
         <div className="mt-8">
           <SobreNosFeed />
         </div>
-        <p className="mt-8 text-center text-sm">
-          <Link href="/" className="text-neon-primary hover:underline">
-            ← Voltar ao início
-          </Link>
-        </p>
+        <div className="mt-10 flex justify-center">
+          <HomeLink compact />
+        </div>
       </div>
     </AppShell>
   );

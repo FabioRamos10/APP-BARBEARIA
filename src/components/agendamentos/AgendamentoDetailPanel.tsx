@@ -149,8 +149,8 @@ export function AgendamentoDetailPanel({
         aria-label="Fechar detalhes"
         onClick={onClose}
       />
-      <div className="glass-panel relative z-10 isolate max-h-[90vh] w-full max-w-lg overflow-hidden rounded-2xl shadow-[0_0_48px_rgba(0,0,0,0.65)]">
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-neon-primary/15 bg-bg-surface/95 px-6 py-4 backdrop-blur-md">
+      <div className="glass-panel relative z-10 isolate flex max-h-[min(90dvh,900px)] w-full max-w-lg flex-col overflow-hidden rounded-2xl shadow-[0_0_48px_rgba(0,0,0,0.65)]">
+        <div className="flex shrink-0 items-start justify-between gap-3 border-b border-neon-primary/15 bg-bg-surface/95 px-6 py-4 backdrop-blur-md">
           <div>
             <h2
               id="agendamento-detail-title"
@@ -171,7 +171,7 @@ export function AgendamentoDetailPanel({
           </Button>
         </div>
 
-        <div className="overflow-y-auto px-6 py-5">
+        <div className="panel-scroll min-h-0 flex-1 px-6 py-5">
         {loading && (
           <p className="text-sm text-text-muted">Carregando…</p>
         )}

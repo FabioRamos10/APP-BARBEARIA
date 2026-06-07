@@ -79,3 +79,69 @@ body::before {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Navegação horizontal mobile — scroll suave sem barra visível */
+/* Áreas roláveis com barra visível (modais, painéis) */
+.panel-scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 255, 156, 0.4) rgba(0, 255, 156, 0.08);
+}
+
+.panel-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.panel-scroll::-webkit-scrollbar-track {
+  margin: 4px 0;
+  border-radius: 999px;
+  background: rgba(0, 255, 156, 0.08);
+}
+
+.panel-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(0, 255, 156, 0.4);
+}
+
+.panel-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 156, 0.55);
+}
+
+/* Select nativo — lista alinhada ao tema escuro */
+select {
+  color-scheme: dark;
+}
+
+select option {
+  background-color: var(--bg-deep);
+  color: var(--text-primary);
+}
+
+.nav-scroll-mask nav {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.nav-scroll-mask nav::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-scroll-mask::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0.25rem;
+  width: 2rem;
+  background: linear-gradient(to left, var(--bg-deep), transparent);
+}
+
+@media (min-width: 640px) {
+  .nav-scroll-mask::after {
+    display: none;
+  }
+}

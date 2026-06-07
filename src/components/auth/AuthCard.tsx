@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
+import { HomeLink } from "@/components/ui/HomeLink";
 import { GlassCard } from "@/components/ui/GlassCard";
 
 interface AuthCardProps {
@@ -21,12 +21,9 @@ export function AuthCard({ title, subtitle, children, footer }: AuthCardProps) {
           </div>
         )}
       </GlassCard>
-      <Link
-        href="/"
-        className="relative z-10 mt-6 text-sm text-text-muted hover:text-neon-primary"
-      >
-        ← Voltar ao início
-      </Link>
+      <div className="relative z-10 mt-8 flex justify-center">
+        <HomeLink compact />
+      </div>
     </AppShell>
   );
 }

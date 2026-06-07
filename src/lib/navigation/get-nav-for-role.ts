@@ -10,6 +10,7 @@ import {
 const MENSAGENS: NavItem = {
   href: "/dashboard/mensagens",
   label: "Mensagens",
+  shortLabel: "Chat",
 };
 
 export function getNavForRole(role: Role | null): NavItem[] {

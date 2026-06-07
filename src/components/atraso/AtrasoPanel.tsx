@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
@@ -8,6 +8,7 @@ import {
   confirmarAtraso,
   informarAtraso,
   listAtrasoMensagens,
+  recusarAtraso,
   sendAtrasoMensagem,
 } from "@/lib/api/agendamento";
 import { formatAuthError, useAuth } from "@/contexts/AuthContext";
@@ -19,6 +20,7 @@ import type { Role } from "@/lib/types/enums";
 import {
   labelStatusAtraso,
   mensagemConfirmacaoAtraso,
+  mensagemRecusaAtraso,
 } from "@/lib/utils/atraso";
 import { formatDateTime } from "@/lib/utils/format";
 
@@ -31,6 +33,17 @@ interface AtrasoPanelProps {
 
 function canManageAtraso(role: Role | null): boolean {
   return role === "ADMIN" || role === "RECEPCIONISTA" || role === "BARBEIRO";
+}
+
+function atrasoPendenteResposta(ag: AgendamentoResponseDTO): boolean {
+  if (ag.atrasoMinutos == null || ag.atrasoInformadoEm == null) {
+    return false;
+  }
+  return (
+    ag.atrasoStatus === "INFORMADO" ||
+    ag.atrasoStatus == null ||
+    ag.atrasoStatus === undefined
+  );
 }
 
 export function AtrasoPanel({
@@ -57,12 +70,31 @@ export function AtrasoPanel({
     isCliente &&
     !hasAtraso &&
     agendamento.status !== "CANCELADO" &&
-    agendamento.status !== "CONCLUIDO";
+    agendamento.status !== "CONCLUIDO" &&
+    agendamento.status !== "FALTOU";
 
-  const canConfirmStaff =
-    isStaff &&
-    hasAtraso &&
-    agendamento.atrasoStatus === "INFORMADO";
+  const canDecidirStaff = isStaff && atrasoPendenteResposta(agendamento);
+
+  const mensagensExibidas = useMemo((): AtrasoMensagemResponseDTO[] => {
+    if (mensagens.length > 0) {
+      return mensagens;
+    }
+    if (hasAtraso && agendamento.atrasoMotivo) {
+      return [
+        {
+          id: "legado-informe",
+          agendamentoId: agendamento.id,
+          autorUserId: agendamento.cliente.id,
+          autorNome: agendamento.cliente.nome,
+          autorRole: "CLIENTE",
+          texto: `Informei atraso de ${agendamento.atrasoMinutos} min. Motivo: ${agendamento.atrasoMotivo}`,
+          respostaOficial: false,
+          createdAt: agendamento.atrasoInformadoEm ?? agendamento.inicio,
+        },
+      ];
+    }
+    return [];
+  }, [mensagens, hasAtraso, agendamento]);
 
   const loadMensagens = useCallback(async () => {
     if (!hasAtraso) return;
@@ -99,6 +131,7 @@ export function AtrasoPanel({
       });
       onUpdated(updated);
       onMessage?.("Atraso informado. A equipe foi notificada por e-mail.");
+      setMotivo("");
       await loadMensagens();
     } catch (e) {
       onError?.(formatAuthError(e));
@@ -114,6 +147,21 @@ export function AtrasoPanel({
       const updated = await confirmarAtraso(agendamento.id);
       onUpdated(updated);
       onMessage?.(mensagemConfirmacaoAtraso(updated.atrasoMinutos ?? minutosInformados));
+      await loadMensagens();
+    } catch (e) {
+      onError?.(formatAuthError(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleRecusar = async () => {
+    setBusy(true);
+    onError?.(null);
+    try {
+      const updated = await recusarAtraso(agendamento.id);
+      onUpdated(updated);
+      onMessage?.(mensagemRecusaAtraso());
       await loadMensagens();
     } catch (e) {
       onError?.(formatAuthError(e));
@@ -142,7 +190,13 @@ export function AtrasoPanel({
   };
 
   if (!canInform && !hasAtraso) {
-    return null;
+    return (
+      <p className="text-sm text-text-muted">
+        {isCliente
+          ? "Nenhum atraso informado. Você pode avisar a barbearia se não chegar no horário (até o início do atendimento)."
+          : "Nenhum atraso informado pelo cliente."}
+      </p>
+    );
   }
 
   return (
@@ -150,8 +204,8 @@ export function AtrasoPanel({
       {canInform && (
         <div className="space-y-4 rounded-xl border border-neon-primary/20 bg-bg-deep/50 p-4">
           <p className="text-xs text-text-muted">
-            Avise a barbearia se não puder chegar no horário. A equipe será
-            notificada por e-mail.
+            Avise a barbearia se não puder chegar no horário — mesmo com o
+            agendamento já confirmado. A equipe será notificada por e-mail.
           </p>
           <Input
             label="Minutos de atraso (1–180)"
@@ -174,10 +228,10 @@ export function AtrasoPanel({
           />
           <Button
             type="button"
+            variant="accent"
             fullWidth
             onClick={handleInformar}
             disabled={busy}
-            className="py-3 font-medium"
           >
             {busy ? "Enviando…" : "Informar atraso"}
           </Button>
@@ -186,46 +240,81 @@ export function AtrasoPanel({
 
       {hasAtraso && (
         <div className="space-y-3 text-sm">
-          <p className="text-neon-primary">
-            {agendamento.atrasoMinutos} min — {agendamento.atrasoMotivo}
-          </p>
-          {agendamento.atrasoStatus && (
-            <p className="text-text-muted">
-              Status:{" "}
-              {labelStatusAtraso(
-                agendamento.atrasoStatus,
-                agendamento.atrasoMinutos,
-              )}
+          <div className="rounded-lg border border-neon-primary/15 bg-neon-primary/5 px-3 py-2">
+            <p className="font-medium text-neon-primary">
+              {agendamento.atrasoMinutos} min de atraso
             </p>
-          )}
-          {agendamento.atrasoConfirmadoEm && (
-            <p className="text-xs text-text-muted">
-              Confirmado em {formatDateTime(agendamento.atrasoConfirmadoEm)}
-            </p>
-          )}
-          {canConfirmStaff && minutosInformados > 0 && (
-            <Button onClick={handleConfirmar} disabled={busy}>
-              Confirmar atraso (+{minutosInformados} min na agenda)
-            </Button>
-          )}
+            <p className="mt-1 text-text-muted">{agendamento.atrasoMotivo}</p>
+            {agendamento.atrasoStatus && (
+              <p className="mt-2 text-xs text-text-muted">
+                Status:{" "}
+                {labelStatusAtraso(
+                  agendamento.atrasoStatus,
+                  agendamento.atrasoMinutos,
+                )}
+              </p>
+            )}
+            {agendamento.atrasoConfirmadoEm && (
+              <p className="mt-1 text-xs text-text-muted">
+                Respondido em {formatDateTime(agendamento.atrasoConfirmadoEm)}
+              </p>
+            )}
+          </div>
 
           <div className="rounded-xl border border-neon-primary/15 bg-black/30 p-3">
             <p className="mb-2 text-xs uppercase tracking-wider text-text-muted">
               Conversa do atraso
             </p>
-            <div className="mb-3 max-h-40 space-y-2 overflow-y-auto">
-              {mensagens.length === 0 && (
+
+            {canDecidirStaff && (
+              <div className="mb-3 space-y-2 rounded-lg border border-warning/30 bg-warning/5 p-3">
+                <p className="text-xs text-text-muted">
+                  O cliente informou atraso. Confirme se vai aguardar — a agenda
+                  será adiantada em <strong>{minutosInformados} min</strong>{" "}
+                  para este atendimento e para os seguintes na fila do barbeiro.
+                </p>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Button
+                    variant="accent"
+                    fullWidth
+                    className="sm:flex-1"
+                    onClick={handleConfirmar}
+                    disabled={busy}
+                  >
+                    {busy ? "…" : `Aguardar (+${minutosInformados} min)`}
+                  </Button>
+                  <Button
+                    variant="danger"
+                    fullWidth
+                    className="sm:flex-1"
+                    onClick={handleRecusar}
+                    disabled={busy}
+                  >
+                    Não vou aguardar
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            <div className="mb-3 max-h-44 space-y-2 overflow-y-auto">
+              {mensagensExibidas.length === 0 && (
                 <p className="text-xs text-text-muted">Nenhuma mensagem ainda.</p>
               )}
-              {mensagens.map((m) => (
+              {mensagensExibidas.map((m) => (
                 <div
                   key={m.id}
-                  className="rounded-lg border border-white/5 bg-white/5 px-2 py-1.5"
+                  className={[
+                    "rounded-lg border px-2.5 py-2",
+                    m.respostaOficial
+                      ? "border-neon-primary/25 bg-neon-primary/10"
+                      : "border-white/5 bg-white/5",
+                  ].join(" ")}
                 >
                   <p className="text-[10px] text-neon-primary">
-                    {m.autorNome} · {m.autorRole}
+                    {m.autorNome}
+                    {m.respostaOficial ? " · resposta oficial" : ""}
                   </p>
-                  <p className="text-xs">{m.texto}</p>
+                  <p className="text-xs leading-relaxed">{m.texto}</p>
                 </div>
               ))}
             </div>

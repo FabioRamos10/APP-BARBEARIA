@@ -17,6 +17,7 @@ import type { FormaPagamento, Role, StatusAgendamento } from "@/lib/types/enums"
 import { FORMAS_PAGAMENTO } from "@/lib/types/enums";
 import { formatCurrency } from "@/lib/utils/format";
 import {
+  formaPagamentoLabel,
   FORMA_PAGAMENTO_LABELS,
   STATUS_PAGAMENTO_LABELS,
 } from "@/lib/utils/pagamento";
@@ -160,7 +161,7 @@ export function PagamentoSection({
     return (
       <div className="space-y-3 text-sm">
         <p>
-          {FORMA_PAGAMENTO_LABELS[pagamento.formaPagamento]} ·{" "}
+          {formaPagamentoLabel(pagamento.formaPagamento)} ·{" "}
           <span className="text-neon-primary">
             {formatCurrency(Number(pagamento.valor))}
           </span>

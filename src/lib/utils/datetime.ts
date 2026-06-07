@@ -62,6 +62,25 @@ export function formatDateFromYmd(ymd: string): string {
   }).format(new Date(y, m - 1, d));
 }
 
+/** Rótulo de dia para agrupamento na agenda (Hoje, Amanhã, ou data longa) */
+export function formatAgendaDayLabel(ymd: string): string {
+  const today = toDateOnly(new Date());
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = toDateOnly(tomorrow);
+  if (ymd === today) {
+    return "Hoje";
+  }
+  if (ymd === tomorrowStr) {
+    return "Amanhã";
+  }
+  return formatDateFromYmd(ymd);
+}
+
+export function dateKeyFromIso(iso: string): string {
+  return iso.slice(0, 10);
+}
+
 export function hourFromIso(iso: string): number {
   const match = iso.match(/T(\d{2}):/);
   return match ? Number(match[1]) : 0;

@@ -91,11 +91,25 @@ export function RelatorioPanel() {
             onChange={(e) => setFim(e.target.value)}
           />
         </div>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Button onClick={gerar} disabled={loading}>
+        <div className="mt-5 flex flex-col gap-3 sm:mt-4 sm:flex-row sm:flex-wrap">
+          <Button
+            variant="accent"
+            size="lg"
+            fullWidth
+            className="sm:w-auto"
+            onClick={gerar}
+            disabled={loading}
+          >
             {loading ? "Gerando…" : "Gerar relatórios"}
           </Button>
-          <Button variant="ghost" onClick={exportarPdf} disabled={loading}>
+          <Button
+            variant="outline"
+            size="lg"
+            fullWidth
+            className="sm:w-auto"
+            onClick={exportarPdf}
+            disabled={loading}
+          >
             Exportar PDF completo
           </Button>
         </div>

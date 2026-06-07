@@ -28,7 +28,6 @@ export const FORMAS_PAGAMENTO = [
   "CARTAO_CREDITO",
   "CARTAO_DEBITO",
   "PIX",
-  "TRANSFERENCIA",
 ] as const;
 
 export type FormaPagamento = (typeof FORMAS_PAGAMENTO)[number];
