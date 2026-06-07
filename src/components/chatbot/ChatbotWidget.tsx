@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { createPortal } from "react-dom";
 import { sendChatbotMessage } from "@/lib/api/chatbot";
 import { getClienteMe } from "@/lib/api/cliente";
 import { getBarbeiroMe } from "@/lib/api/barbeiro";
@@ -15,6 +22,9 @@ interface ChatMessage {
   sugestoes?: string[];
 }
 
+const PANEL_WIDTH = 352;
+const PANEL_GAP = 8;
+
 function nextId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
@@ -22,7 +32,14 @@ function nextId() {
 export function ChatbotWidget() {
   const { isAuthenticated, displayName: authDisplayName, email, role } =
     useAuth();
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [panelStyle, setPanelStyle] = useState<{
+    top: number;
+    left: number;
+    width: number;
+  } | null>(null);
   const [chatName, setChatName] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -52,6 +69,10 @@ export function ChatbotWidget() {
     }
     return "visitante";
   }, [authDisplayName, role, email]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!open) {
@@ -86,6 +107,46 @@ export function ChatbotWidget() {
       behavior: "smooth",
     });
   }, [messages, open]);
+
+  const updatePanelPosition = useCallback(() => {
+    const el = triggerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const width = Math.min(PANEL_WIDTH, window.innerWidth - PANEL_GAP * 2);
+    let left = rect.right - width;
+    left = Math.max(
+      PANEL_GAP,
+      Math.min(left, window.innerWidth - width - PANEL_GAP),
+    );
+    setPanelStyle({
+      top: rect.bottom + PANEL_GAP,
+      left,
+      width,
+    });
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!open) {
+      setPanelStyle(null);
+      return;
+    }
+    updatePanelPosition();
+    window.addEventListener("resize", updatePanelPosition);
+    window.addEventListener("scroll", updatePanelPosition, true);
+    return () => {
+      window.removeEventListener("resize", updatePanelPosition);
+      window.removeEventListener("scroll", updatePanelPosition, true);
+    };
+  }, [open, updatePanelPosition]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
 
   const sendMessage = async (text: string) => {
     const trimmed = text.trim();
@@ -123,136 +184,160 @@ export function ChatbotWidget() {
   };
 
   const toggle = () => {
-    setOpen((v) => !v);
-    if (open) {
-      setWelcomed(false);
-      setMessages([]);
-      setChatName(null);
-    }
+    setOpen((v) => {
+      const next = !v;
+      if (!next) {
+        setWelcomed(false);
+        setMessages([]);
+        setChatName(null);
+      }
+      return next;
+    });
   };
 
   if (!isAuthenticated) {
     return null;
   }
 
+  const panel =
+    open && mounted && panelStyle
+      ? createPortal(
+          <>
+            <button
+              type="button"
+              className="fixed inset-0 z-[200] cursor-default bg-black/40 backdrop-blur-[1px]"
+              aria-label="Fechar assistente CB"
+              onClick={() => setOpen(false)}
+            />
+            <div
+              className="fixed z-[210] flex max-h-[min(70vh,32rem)] flex-col overflow-hidden rounded-2xl border border-neon-primary/30 bg-black/90 shadow-[0_0_48px_rgba(57,255,20,0.12)] backdrop-blur-xl"
+              style={{
+                top: panelStyle.top,
+                left: panelStyle.left,
+                width: panelStyle.width,
+              }}
+              role="dialog"
+              aria-label="Assistente CB"
+            >
+              <header className="flex items-center gap-3 border-b border-neon-primary/20 bg-gradient-to-r from-neon-primary/10 to-transparent px-4 py-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full border border-neon-primary/40 bg-black font-display text-xs font-bold text-neon-primary">
+                  CB
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-display text-sm font-semibold text-neon-primary">
+                    Assistente CB
+                  </p>
+                  <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-text-muted">
+                    <span className="h-1.5 w-1.5 rounded-full bg-neon-primary shadow-[0_0_6px_#39ff14]" />
+                    Online
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={toggle}
+                  className="rounded-lg px-2 py-1 text-xs text-text-muted transition hover:bg-white/5 hover:text-white"
+                  aria-label="Fechar"
+                >
+                  ✕
+                </button>
+              </header>
+
+              <div
+                ref={listRef}
+                className="flex max-h-72 min-h-48 flex-1 flex-col gap-3 overflow-y-auto p-4"
+              >
+                {messages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={
+                      msg.role === "user"
+                        ? "ml-6 rounded-2xl rounded-tr-sm border border-neon-primary/30 bg-neon-primary/15 px-3 py-2 text-sm text-white"
+                        : "mr-2 rounded-2xl rounded-tl-sm border border-white/10 bg-white/5 px-3 py-2 text-sm text-text-muted"
+                    }
+                  >
+                    {msg.role === "bot" ? (
+                      <span
+                        dangerouslySetInnerHTML={{
+                          __html: formatChatMessage(msg.text),
+                        }}
+                      />
+                    ) : (
+                      msg.text
+                    )}
+                    {msg.sugestoes && msg.sugestoes.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {msg.sugestoes.map((s) => (
+                          <button
+                            key={s}
+                            type="button"
+                            disabled={sending}
+                            onClick={() => void sendMessage(s)}
+                            className="rounded-full border border-neon-primary/25 bg-black/40 px-2.5 py-1 text-[11px] text-neon-primary transition hover:border-neon-primary/60 hover:bg-neon-primary/10 disabled:opacity-50"
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {sending && (
+                  <p className="text-xs text-text-muted animate-pulse">
+                    CB está digitando…
+                  </p>
+                )}
+              </div>
+
+              {error && (
+                <p className="px-4 pb-1 text-xs text-danger">{error}</p>
+              )}
+
+              <form
+                onSubmit={handleSubmit}
+                className="flex gap-2 border-t border-neon-primary/15 p-3"
+              >
+                <input
+                  type="text"
+                  maxLength={1000}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Digite sua pergunta…"
+                  disabled={sending}
+                  className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-sm text-white placeholder:text-text-muted focus:border-neon-primary/50 focus:outline-none focus:ring-1 focus:ring-neon-primary/30 disabled:opacity-50"
+                />
+                <button
+                  type="submit"
+                  disabled={sending || !input.trim()}
+                  className="rounded-xl border border-neon-primary/40 bg-neon-primary/15 px-3 py-2 font-display text-xs font-semibold uppercase tracking-wide text-neon-primary transition hover:bg-neon-primary/25 disabled:opacity-40"
+                >
+                  →
+                </button>
+              </form>
+            </div>
+          </>,
+          document.body,
+        )
+      : null;
+
   return (
     <>
       <button
+        ref={triggerRef}
         type="button"
         onClick={toggle}
         aria-expanded={open}
+        aria-haspopup="dialog"
         aria-label={open ? "Fechar assistente CB" : "Abrir assistente CB"}
-        className="group fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom,0px))] right-4 z-[100] flex h-12 w-12 items-center justify-center rounded-full border border-neon-primary/50 bg-black/85 font-display text-xs font-bold tracking-wider text-neon-primary shadow-[0_0_24px_rgba(57,255,20,0.35)] backdrop-blur-md transition-all hover:scale-105 hover:border-neon-primary hover:shadow-[0_0_36px_rgba(57,255,20,0.55)] focus:outline-none focus-visible:ring-2 focus-visible:ring-neon-primary sm:bottom-6 sm:right-6 sm:h-14 sm:w-14 sm:text-sm"
+        className={[
+          "relative flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border font-display text-[10px] font-bold tracking-wider transition",
+          open
+            ? "border-neon-primary bg-neon-primary/15 text-neon-primary shadow-[0_0_16px_rgba(57,255,20,0.25)]"
+            : "border-neon-primary/25 text-neon-primary hover:border-neon-primary/50 hover:bg-neon-primary/10",
+        ].join(" ")}
       >
-        <span
-          className="absolute inset-0 rounded-full border border-neon-primary/30 animate-ping opacity-20 group-hover:opacity-40"
-          aria-hidden
-        />
-        <span className="relative">CB</span>
+        CB
       </button>
-
-      {open && (
-        <div
-          className="fixed bottom-[calc(9.25rem+env(safe-area-inset-bottom,0px))] right-4 z-[100] flex max-h-[min(70vh,32rem)] w-[min(calc(100vw-2rem),22rem)] flex-col overflow-hidden rounded-2xl border border-neon-primary/30 bg-black/90 shadow-[0_0_48px_rgba(57,255,20,0.12)] backdrop-blur-xl sm:bottom-[5.5rem] sm:right-6"
-          role="dialog"
-          aria-label="Assistente CB"
-        >
-          <header className="flex items-center gap-3 border-b border-neon-primary/20 bg-gradient-to-r from-neon-primary/10 to-transparent px-4 py-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-neon-primary/40 bg-black font-display text-xs font-bold text-neon-primary">
-              CB
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="font-display text-sm font-semibold text-neon-primary">
-                Assistente CB
-              </p>
-              <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-text-muted">
-                <span className="h-1.5 w-1.5 rounded-full bg-neon-primary shadow-[0_0_6px_#39ff14]" />
-                Online
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={toggle}
-              className="rounded-lg px-2 py-1 text-xs text-text-muted transition hover:bg-white/5 hover:text-white"
-              aria-label="Fechar"
-            >
-              ✕
-            </button>
-          </header>
-
-          <div
-            ref={listRef}
-            className="flex max-h-72 min-h-48 flex-1 flex-col gap-3 overflow-y-auto p-4"
-          >
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={
-                  msg.role === "user"
-                    ? "ml-6 rounded-2xl rounded-tr-sm border border-neon-primary/30 bg-neon-primary/15 px-3 py-2 text-sm text-white"
-                    : "mr-2 rounded-2xl rounded-tl-sm border border-white/10 bg-white/5 px-3 py-2 text-sm text-text-muted"
-                }
-              >
-                {msg.role === "bot" ? (
-                  <span
-                    dangerouslySetInnerHTML={{
-                      __html: formatChatMessage(msg.text),
-                    }}
-                  />
-                ) : (
-                  msg.text
-                )}
-                {msg.sugestoes && msg.sugestoes.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {msg.sugestoes.map((s) => (
-                      <button
-                        key={s}
-                        type="button"
-                        disabled={sending}
-                        onClick={() => void sendMessage(s)}
-                        className="rounded-full border border-neon-primary/25 bg-black/40 px-2.5 py-1 text-[11px] text-neon-primary transition hover:border-neon-primary/60 hover:bg-neon-primary/10 disabled:opacity-50"
-                      >
-                        {s}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-            {sending && (
-              <p className="text-xs text-text-muted animate-pulse">
-                CB está digitando…
-              </p>
-            )}
-          </div>
-
-          {error && (
-            <p className="px-4 pb-1 text-xs text-danger">{error}</p>
-          )}
-
-          <form
-            onSubmit={handleSubmit}
-            className="flex gap-2 border-t border-neon-primary/15 p-3"
-          >
-            <input
-              type="text"
-              maxLength={1000}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Digite sua pergunta…"
-              disabled={sending}
-              className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-sm text-white placeholder:text-text-muted focus:border-neon-primary/50 focus:outline-none focus:ring-1 focus:ring-neon-primary/30 disabled:opacity-50"
-            />
-            <button
-              type="submit"
-              disabled={sending || !input.trim()}
-              className="rounded-xl border border-neon-primary/40 bg-neon-primary/15 px-3 py-2 font-display text-xs font-semibold uppercase tracking-wide text-neon-primary transition hover:bg-neon-primary/25 disabled:opacity-40"
-            >
-              →
-            </button>
-          </form>
-        </div>
-      )}
+      {panel}
     </>
   );
 }

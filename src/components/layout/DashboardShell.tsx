@@ -54,16 +54,16 @@ export function DashboardShell({
               Sair
             </Button>
             <AlertasBell />
+            <ChatbotWidget />
           </div>
         </div>
       </header>
-      <main className="relative z-0 mx-auto w-full max-w-4xl pb-24 sm:pb-8">
+      <main className="relative z-0 mx-auto w-full max-w-4xl pb-8">
         {children}
       </main>
       <footer className="relative z-10 mx-auto mt-10 flex w-full max-w-4xl justify-center pb-8 sm:mt-12">
         <HomeLink compact />
       </footer>
-      <ChatbotWidget />
     </AppShell>
   );
 }

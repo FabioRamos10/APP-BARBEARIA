@@ -10,28 +10,34 @@ export function Input({ label, error, id, className = "", type, ...props }: Inpu
   const isDate = type === "date" || type === "datetime-local";
 
   return (
-    <div className="min-w-0 space-y-1.5">
+    <div className="min-w-0 max-w-full space-y-1.5">
       <label
         htmlFor={inputId}
         className="block text-xs font-medium uppercase tracking-wider text-text-muted"
       >
         {label}
       </label>
-      <input
-        id={inputId}
-        type={type}
+      <div
         className={[
-          "block w-full min-w-0 max-w-full rounded-lg border bg-bg-deep/80 py-2.5 text-sm text-foreground",
-          isDate ? "px-3 color-scheme-dark" : "px-4",
-          "placeholder:text-text-muted/50",
-          "focus:border-neon-primary/60 focus:outline-none focus:ring-2 focus:ring-neon-primary/20",
+          "min-w-0 max-w-full overflow-hidden rounded-lg border",
           error ? "border-danger/60" : "border-neon-primary/20",
-          className,
-        ]
-          .filter(Boolean)
-          .join(" ")}
-        {...props}
-      />
+        ].join(" ")}
+      >
+        <input
+          id={inputId}
+          type={type}
+          className={[
+            "block w-full min-w-0 max-w-full box-border rounded-lg border-0 bg-bg-deep/80 py-2.5 text-sm text-foreground",
+            isDate ? "px-3 color-scheme-dark" : "px-4",
+            "placeholder:text-text-muted/50",
+            "focus:outline-none focus:ring-2 focus:ring-inset focus:ring-neon-primary/20",
+            className,
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          {...props}
+        />
+      </div>
       {error && <p className="text-xs text-danger">{error}</p>}
     </div>
   );
