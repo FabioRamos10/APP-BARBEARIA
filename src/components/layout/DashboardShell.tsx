@@ -41,12 +41,20 @@ export function DashboardShell({
             <p className="mt-1 text-sm text-text-muted">{subtitle}</p>
           )}
         </div>
-        <div className="flex shrink-0 items-center justify-end gap-2 sm:gap-3">
-          {role && <UserIdentity name={name} role={role} />}
-          <Button variant="outline" size="sm" onClick={logout} className="shrink-0">
-            Sair
-          </Button>
-          <AlertasBell />
+        <div className="flex w-full min-w-0 items-center gap-2 sm:w-auto sm:shrink-0 sm:gap-3">
+          {role && (
+            <UserIdentity
+              name={name}
+              role={role}
+              className="min-w-0 flex-1 sm:max-w-[14rem]"
+            />
+          )}
+          <div className="flex shrink-0 items-center gap-2">
+            <Button variant="outline" size="sm" onClick={logout}>
+              Sair
+            </Button>
+            <AlertasBell />
+          </div>
         </div>
       </header>
       <main className="relative z-0 mx-auto w-full max-w-4xl pb-24 sm:pb-8">

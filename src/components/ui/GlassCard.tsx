@@ -14,7 +14,7 @@ export function GlassCard({
 }: GlassCardProps) {
   return (
     <div
-      className={`glass-panel relative z-10 rounded-2xl p-6 ${className}`}
+      className={`glass-panel relative z-10 overflow-hidden rounded-2xl p-4 sm:p-6 ${className}`}
       {...props}
     >
       {(title || subtitle) && (

@@ -5,11 +5,12 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
 }
 
-export function Input({ label, error, id, className = "", ...props }: InputProps) {
+export function Input({ label, error, id, className = "", type, ...props }: InputProps) {
   const inputId = id ?? props.name;
+  const isDate = type === "date" || type === "datetime-local";
 
   return (
-    <div className="space-y-1.5">
+    <div className="min-w-0 space-y-1.5">
       <label
         htmlFor={inputId}
         className="block text-xs font-medium uppercase tracking-wider text-text-muted"
@@ -18,8 +19,10 @@ export function Input({ label, error, id, className = "", ...props }: InputProps
       </label>
       <input
         id={inputId}
+        type={type}
         className={[
-          "w-full rounded-lg border bg-bg-deep/80 px-4 py-2.5 text-sm text-foreground",
+          "block w-full min-w-0 max-w-full rounded-lg border bg-bg-deep/80 py-2.5 text-sm text-foreground",
+          isDate ? "px-3 color-scheme-dark" : "px-4",
           "placeholder:text-text-muted/50",
           "focus:border-neon-primary/60 focus:outline-none focus:ring-2 focus:ring-neon-primary/20",
           error ? "border-danger/60" : "border-neon-primary/20",

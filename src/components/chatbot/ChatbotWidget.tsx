@@ -142,7 +142,7 @@ export function ChatbotWidget() {
         onClick={toggle}
         aria-expanded={open}
         aria-label={open ? "Fechar assistente CB" : "Abrir assistente CB"}
-        className="group fixed bottom-5 right-5 z-[100] flex h-14 w-14 items-center justify-center rounded-full border border-neon-primary/50 bg-black/85 font-display text-sm font-bold tracking-wider text-neon-primary shadow-[0_0_24px_rgba(57,255,20,0.35)] backdrop-blur-md transition-all hover:scale-105 hover:border-neon-primary hover:shadow-[0_0_36px_rgba(57,255,20,0.55)] focus:outline-none focus-visible:ring-2 focus-visible:ring-neon-primary sm:bottom-6 sm:right-6"
+        className="group fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom,0px))] right-4 z-[100] flex h-12 w-12 items-center justify-center rounded-full border border-neon-primary/50 bg-black/85 font-display text-xs font-bold tracking-wider text-neon-primary shadow-[0_0_24px_rgba(57,255,20,0.35)] backdrop-blur-md transition-all hover:scale-105 hover:border-neon-primary hover:shadow-[0_0_36px_rgba(57,255,20,0.55)] focus:outline-none focus-visible:ring-2 focus-visible:ring-neon-primary sm:bottom-6 sm:right-6 sm:h-14 sm:w-14 sm:text-sm"
       >
         <span
           className="absolute inset-0 rounded-full border border-neon-primary/30 animate-ping opacity-20 group-hover:opacity-40"
@@ -153,7 +153,7 @@ export function ChatbotWidget() {
 
       {open && (
         <div
-          className="fixed bottom-[5.25rem] right-5 z-[100] flex max-h-[min(70vh,32rem)] w-[min(calc(100vw-2.5rem),22rem)] flex-col overflow-hidden rounded-2xl border border-neon-primary/30 bg-black/90 shadow-[0_0_48px_rgba(57,255,20,0.12)] backdrop-blur-xl sm:bottom-[5.5rem] sm:right-6"
+          className="fixed bottom-[calc(9.25rem+env(safe-area-inset-bottom,0px))] right-4 z-[100] flex max-h-[min(70vh,32rem)] w-[min(calc(100vw-2rem),22rem)] flex-col overflow-hidden rounded-2xl border border-neon-primary/30 bg-black/90 shadow-[0_0_48px_rgba(57,255,20,0.12)] backdrop-blur-xl sm:bottom-[5.5rem] sm:right-6"
           role="dialog"
           aria-label="Assistente CB"
         >
