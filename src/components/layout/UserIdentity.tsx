@@ -26,7 +26,7 @@ export function UserIdentity({ name, role, className = "" }: UserIdentityProps) 
   return (
     <div
       className={[
-        "flex min-w-0 items-center gap-2 rounded-xl border border-neon-primary/20 bg-bg-surface/80 px-2 py-1.5 backdrop-blur-sm sm:gap-2.5 sm:rounded-full sm:px-3",
+        "flex min-w-0 items-center gap-2 rounded-full border border-neon-primary/20 bg-bg-surface/80 px-2.5 py-1.5 backdrop-blur-sm sm:gap-2.5 sm:px-3",
         className,
       ].join(" ")}
       title={`${name} · ${roleLabel(role)}`}
@@ -39,7 +39,7 @@ export function UserIdentity({ name, role, className = "" }: UserIdentityProps) 
         {name}
       </span>
       <span
-        className={`hidden h-2 w-2 shrink-0 rounded-full sm:block ${roleDotClass(role)}`}
+        className={`h-2 w-2 shrink-0 rounded-full ${roleDotClass(role)}`}
         aria-hidden
       />
     </div>

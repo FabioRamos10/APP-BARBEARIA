@@ -29,8 +29,8 @@ export function DashboardShell({
 
   return (
     <AppShell>
-      <header className="relative z-30 mx-auto mb-6 flex w-full max-w-4xl flex-col gap-4 border-b border-neon-primary/15 pb-5 sm:mb-8 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex min-w-0 flex-1 items-end justify-between gap-3">
+      <header className="relative z-30 mx-auto mb-6 flex w-full max-w-4xl flex-col gap-4 border-b border-neon-primary/15 pb-5 sm:mb-8">
+        <div className="flex min-w-0 items-end justify-between gap-3">
           <div className="min-w-0 flex-1 pr-1">
             <p className="font-display text-[10px] uppercase tracking-[0.25em] text-neon-primary/70 sm:text-xs sm:tracking-[0.3em]">
               {BRAND_NAME}
@@ -46,16 +46,16 @@ export function DashboardShell({
               </p>
             )}
           </div>
-          <div className="shrink-0 -translate-y-3 sm:-translate-y-4">
+          <div className="shrink-0 -translate-y-3">
             <ChatbotWidget />
           </div>
         </div>
-        <div className="flex w-full min-w-0 items-center gap-2 sm:w-auto sm:shrink-0 sm:gap-3">
+        <div className="flex w-full min-w-0 items-center gap-2 sm:gap-3">
           {role && (
             <UserIdentity
               name={name}
               role={role}
-              className="min-w-0 flex-1 sm:max-w-[14rem]"
+              className="min-w-0 max-w-[min(100%,16rem)] flex-1"
             />
           )}
           <div className="flex shrink-0 items-center gap-2">
