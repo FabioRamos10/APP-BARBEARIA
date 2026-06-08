@@ -43,10 +43,10 @@ function UserActions({
         role={role}
         className="min-w-0 max-w-[min(100%,14rem)]"
       />
+      <AlertasBell />
       <Button variant="outline" size="sm" onClick={logout}>
         Sair
       </Button>
-      <AlertasBell />
     </div>
   );
 }
